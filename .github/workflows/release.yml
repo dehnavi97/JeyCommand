@@ -42,11 +42,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ۱. تنظیم محیط Node.js
+      # ۱. تنظیم محیط Node.js و فعال‌سازی کش اختصاصی برای yarn
       - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'yarn' 
 
       # ۲. نصب راست همراه با تارگت دقیق مشخص شده در ماتریس بالا
       - name: install Rust stable
@@ -61,14 +62,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 
-      # ۴. نصب پکیج‌ها با pnpm
+      # ۴. فعال‌سازی Corepack و نصب پکیج‌ها با Yarn (بدون قفل شدن پروسه در ویندوز)
       - name: install frontend dependencies
         run: |
           corepack enable
-          corepack prepare pnpm@9.15.4 --activate
-          pnpm install
+          yarn install
 
-      # ۵. تغییر نام اختصاصی برنامه
+      # ۵. تغییر نام اختصاصی برنامه بر اساس معماری سیستم‌عامل
       - name: Update App Name for Platform
         shell: bash
         run: |
@@ -79,7 +79,7 @@ jobs:
             fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(config, null, 2));
           "
 
-      # ۶. بیلد نهایی و انتشار
+      # ۶. بیلد نهایی و انتشار خروجی‌ها در ریلیس گیت‌هاب
       - name: Build and Publish
         uses: tauri-apps/tauri-action@v0
         env:
